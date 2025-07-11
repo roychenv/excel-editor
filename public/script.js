@@ -37,24 +37,6 @@ function uploadExcel() {
   });
 }
 
-function saveExcel() {
-  checkLoginStatus().then(() => {
-    fetch('/save', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ data: currentData })
-    })
-    .then(async res => {
-      if (!res.ok) throw new Error(await res.text());
-      alert('✅ 保存成功！');
-    })
-    .catch(err => {
-      alert('❌ 保存失败: ' + err.message);
-      console.error(err);
-    });
-  });
-}
-
 function renderTable() {
   const container = document.getElementById('tableContainer');
   container.innerHTML = '';
@@ -75,4 +57,36 @@ function renderTable() {
   });
 
   container.appendChild(table);
+}
+
+function saveExcel() {
+  checkLoginStatus().then(() => {
+    fetch('/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: currentData })
+    })
+    .then(async res => {
+      if (!res.ok) throw new Error(await res.text());
+      alert('✅ 保存成功！');
+    })
+    .catch(err => {
+      alert('❌ 保存失败: ' + err.message);
+      console.error(err);
+    });
+  });
+}
+
+// ✅ 导出 Excel 到本地
+function downloadExcel() {
+  if (!currentData || currentData.length === 0) {
+    alert("表格为空，无法导出！");
+    return;
+  }
+
+  const ws = XLSX.utils.aoa_to_sheet(currentData);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+
+  XLSX.writeFile(wb, "编辑结果.xlsx");
 }
