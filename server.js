@@ -8,27 +8,41 @@ const path = require('path');
 const app = express();
 app.use(cors());
 
-// 🟢 增加 JSON 请求体大小限制，避免 413 报错
+// 🟡 放大 json 数据体限制，避免 413 报错
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+// 🟡 设置静态资源目录
 app.use(express.static('public'));
 
+// ✅ Render 环境 session 设置：适配 HTTPS
 app.use(session({
   secret: 'excelSecret',
   resave: false,
-  saveUninitialized: true
+  saveUninitialized: false,
+  cookie: {
+    sameSite: 'lax',
+    secure: false  // 如果你用的是强制 HTTPS，可设为 true
+  }
 }));
 
-// ✅ 使用 Render 支持写入的临时目录
+// ✅ multer 使用 Render 可写目录
 const upload = multer({ dest: '/tmp/' });
 
+// 👤 假设只有一个账户
 const USER = { username: 'admin', password: '123456' };
 
+// 🔐 权限中间件
 function checkAuth(req, res, next) {
   if (req.session.user) next();
-  else res.status(401).send('请登录');
+  else res.status(401).send('未登录');
 }
+
+// 🔍 登录状态检查接口
+app.get('/check-auth', (req, res) => {
+  if (req.session.user) res.sendStatus(200);
+  else res.sendStatus(401);
+});
 
 // 登录接口
 app.post('/login', (req, res) => {
@@ -43,7 +57,7 @@ app.post('/login', (req, res) => {
 
 let currentExcelPath = '';
 
-// 上传 Excel 并读取内容
+// 上传文件
 app.post('/upload', checkAuth, upload.single('file'), (req, res) => {
   try {
     currentExcelPath = req.file.path;
@@ -52,18 +66,17 @@ app.post('/upload', checkAuth, upload.single('file'), (req, res) => {
     const data = xlsx.utils.sheet_to_json(sheet, { header: 1 });
     res.json({ data });
   } catch (err) {
-    console.error('读取 Excel 出错:', err);
-    res.status(500).send('读取失败：' + err.message);
+    console.error('❌ 上传失败:', err);
+    res.status(500).send('上传失败: ' + err.message);
   }
 });
 
-// 保存修改后的 Excel
+// 保存编辑
 app.post('/save', checkAuth, (req, res) => {
   try {
     const newData = req.body.data;
-
     if (!newData || !Array.isArray(newData)) {
-      throw new Error('提交的数据格式无效');
+      throw new Error('数据格式不合法');
     }
 
     const ws = xlsx.utils.aoa_to_sheet(newData);
@@ -75,7 +88,7 @@ app.post('/save', checkAuth, (req, res) => {
     res.sendStatus(200);
   } catch (err) {
     console.error('❌ 保存失败:', err);
-    res.status(500).send('保存失败：' + err.message);
+    res.status(500).send('保存失败: ' + err.message);
   }
 });
 
