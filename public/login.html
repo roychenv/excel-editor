@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>登录</title></head>
+<body>
+  <h2>登录 Excel 编辑系统</h2>
+  <input id="username" placeholder="用户名"><br>
+  <input id="password" placeholder="密码" type="password"><br>
+  <button onclick="login()">登录</button>
+
+  <script>
+    function login() {
+      fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          username: document.getElementById('username').value,
+          password: document.getElementById('password').value
+        })
+      }).then(res => {
+        if (res.ok) location.href = '/index.html';
+        else alert('登录失败');
+      });
+    }
+  </script>
+</body>
+</html>
