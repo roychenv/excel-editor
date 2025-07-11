@@ -1,10 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><title>Excel 编辑</title>
+<head>
+  <meta charset="UTF-8">
+  <title>Excel 编辑器</title>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
-    table, td { border: 1px solid #333; border-collapse: collapse; }
-    td { padding: 5px; }
-    td[contenteditable="true"] { background: #eef; }
+    table, td, th {
+      border: 1px solid black;
+      border-collapse: collapse;
+    }
+    td {
+      padding: 5px;
+    }
+    td[contenteditable="true"] {
+      background-color: #eef;
+    }
   </style>
 </head>
 <body>
@@ -15,6 +25,7 @@
   <h2>表格编辑</h2>
   <div id="tableContainer"></div>
   <button onclick="saveExcel()">保存</button>
+  <button onclick="downloadExcel()">导出 Excel</button>
 
   <script src="script.js"></script>
 </body>
