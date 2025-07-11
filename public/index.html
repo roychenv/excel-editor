@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>Excel 编辑</title>
+  <style>
+    table, td { border: 1px solid #333; border-collapse: collapse; }
+    td { padding: 5px; }
+    td[contenteditable="true"] { background: #eef; }
+  </style>
+</head>
+<body>
+  <h2>上传 Excel 文件</h2>
+  <input type="file" id="excelFile">
+  <button onclick="uploadExcel()">上传</button>
+
+  <h2>表格编辑</h2>
+  <div id="tableContainer"></div>
+  <button onclick="saveExcel()">保存</button>
+
+  <script src="script.js"></script>
+</body>
+</html>
